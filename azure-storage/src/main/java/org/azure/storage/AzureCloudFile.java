@@ -53,7 +53,7 @@ public class AzureCloudFile {
 	}
 
 	/**
-	 * 创建共享引用
+	 * 获取共享名
 	 *
 	 * @param shareName
 	 *            共享名称
@@ -63,17 +63,33 @@ public class AzureCloudFile {
 	 * @Author Yu Jinshui
 	 * @createTime 2016年4月1日 下午2:34:47
 	 */
-	public CloudFileShare createShare(String shareName) throws URISyntaxException, StorageException {
+	public CloudFileShare getShare(String shareName) throws URISyntaxException, StorageException {
 		CloudFileShare share;
 		share = fileClient.getShareReference(shareName);
 		// 实际创建共享时，请使用 CloudFileShare 对象的 createIfNotExists 方法。
 
-		if (share.createIfNotExists()) {
-			System.out.println("New share created");
-		}
 		// 而在目前，share 保留对名为 sampleshare 的共享的引用。
 		return share;
 
+	}
+
+	/**
+	 * 创建共享引用
+	 *
+	 * @param shareName
+	 *            共享名
+	 * @return
+	 * @throws StorageException
+	 * @throws URISyntaxException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月1日 下午6:44:54
+	 */
+	public CloudFileShare createShare(String shareName) throws StorageException, URISyntaxException {
+		CloudFileShare share = getShare(shareName);
+		if (share.createIfNotExists()) {
+			System.out.println("New share created");
+		}
+		return share;
 	}
 
 	/**
@@ -84,7 +100,7 @@ public class AzureCloudFile {
 	 * 
 	 * @param share
 	 * @param dirName
-	 *            目录名
+	 *            目录名(多级目录以 / 分割)
 	 * @throws StorageException
 	 * @throws URISyntaxException
 	 * @Author Yu Jinshui
@@ -92,18 +108,69 @@ public class AzureCloudFile {
 	 */
 	public CloudFileDirectory createDir(CloudFileShare share, String dirName)
 			throws StorageException, URISyntaxException {
-		// Get a reference to the root directory for the share.
-		CloudFileDirectory rootDir = share.getRootDirectoryReference();
-
-		// Get a reference to the sampledir directory
-		CloudFileDirectory sampleDir = rootDir.getDirectoryReference(dirName);
-
+		CloudFileDirectory sampleDir = null;
+		sampleDir = getDir(share, dirName);
 		if (sampleDir.createIfNotExists()) {
-			System.out.println("sampledir created");
+			System.out.println(dirName + " created");
 		} else {
-			System.out.println("sampledir already exists");
+			System.out.println(dirName + " already exists");
 		}
 		return sampleDir;
+	}
+
+	/**
+	 * 获取目录
+	 *
+	 * @param share
+	 * @param dirName
+	 * @return
+	 * @throws StorageException
+	 * @throws URISyntaxException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月1日 下午7:25:32
+	 */
+	public CloudFileDirectory getDir(CloudFileShare share, String dirName) throws StorageException, URISyntaxException {
+		// Get a reference to the root directory for the share.
+		CloudFileDirectory rootDir = share.getRootDirectoryReference();
+		// Get a reference to the sampledir directory
+		CloudFileDirectory sampleDir = rootDir.getDirectoryReference(dirName);
+		return sampleDir;
+	}
+
+	/**
+	 * 获取共享目录
+	 *
+	 * @param shareName
+	 *            共享名称
+	 * @param dirName
+	 *            目录名称
+	 * @return
+	 * @throws StorageException
+	 * @throws URISyntaxException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月1日 下午7:28:14
+	 */
+	public CloudFileDirectory getDir(String shareName, String dirName) throws StorageException, URISyntaxException {
+		CloudFileShare share = getShare(shareName);
+		return getDir(share, dirName);
+	}
+
+	/**
+	 * 创建共享以及目录名
+	 * 
+	 * @param shareName
+	 *            共享名称
+	 * @param dirName
+	 *            共享下的目录
+	 * @return
+	 * @throws URISyntaxException
+	 * @throws StorageException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月1日 下午6:34:23
+	 */
+	public CloudFileDirectory createDir(String shareName, String dirName) throws URISyntaxException, StorageException {
+		CloudFileShare share = getShare(shareName);
+		return createDir(share, dirName);
 	}
 
 	/**
@@ -111,8 +178,8 @@ public class AzureCloudFile {
 	 * 
 	 * @param share
 	 *            共享信息
-	 * @param shareName
-	 *            共享目录的名称
+	 * @param itemName
+	 *            目录名(多级目录以 / 分割)
 	 * @param filePathName
 	 *            待上传文件路径
 	 * @param outputName
@@ -120,24 +187,70 @@ public class AzureCloudFile {
 	 * @Author Yu Jinshui
 	 * @createTime 2016年4月1日 下午2:38:35
 	 */
-	public void uploadFile(CloudFileShare share, String filePathName, String outputName) {
+	public void uploadFile(CloudFileShare share, String itemName, String filePathName, String outputName) {
 
 		// 上载文件的第一步是获取对文件所在的目录的引用。为此，你需要调用共享对象的 getRootDirectoryReference
 		// 方法。
 
 		// Get a reference to the root directory for the share.
-		CloudFileDirectory rootDir;
+		CloudFileDirectory leafDir;
 		try {
-			rootDir = share.getRootDirectoryReference();
+			leafDir = share.getRootDirectoryReference();
 			// 现在，你已经有了共享所在的根目录的引用，因此可以使用以下代码来上载文件。
-
-			CloudFile cloudFile = rootDir.getFileReference(outputName);
+			if (itemName != null && !"".equals(itemName)) {
+				leafDir = leafDir.getDirectoryReference(itemName);
+			}
+			CloudFile cloudFile = leafDir.getFileReference(outputName);
 			cloudFile.uploadFromFile(filePathName);
 		} catch (IOException | StorageException | URISyntaxException e) {
 			logger.error("文件上传异常。", e);
 			e.printStackTrace();
 		}
 
+	}
+
+	/**
+	 * 上传文件
+	 *
+	 * @param shareName
+	 *            共享名
+	 * @param itemName
+	 *            目录名
+	 * @param filePathName
+	 *            待上传文件路径
+	 * @param outputName
+	 *            文件名
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月1日 下午6:39:28
+	 */
+	public void uploadFile(String shareName, String itemName, String filePathName, String outputName) {
+		try {
+			CloudFileShare share = getShare(shareName);
+			uploadFile(share, itemName, filePathName, outputName);
+		} catch (URISyntaxException | StorageException e) {
+			logger.error("上传失败 ,共享名不可为空", e);
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 *
+	 * @param shareName
+	 * @param dirName
+	 * @param fileName
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月1日 下午7:08:45
+	 * @deprecated
+	 */
+	public void uploadFile_NotCheckDir(String shareName, String itemName, String dirName, String fileName) {
+		try {
+			CloudFileShare share = createShare(shareName);
+			uploadFile(share, itemName, dirName, fileName);
+		} catch (URISyntaxException | StorageException e) {
+			logger.error("上传失败", e);
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -180,21 +293,25 @@ public class AzureCloudFile {
 	 * @Author Yu Jinshui
 	 * @createTime 2016年4月1日 下午3:21:20
 	 */
-	public String downloadFile(CloudFileShare share, String dirName, String fileName)
+	public CloudFile downloadFile(CloudFileShare share, String dirName, String fileName)
 			throws StorageException, URISyntaxException, IOException {
 		// Get a reference to the root directory for the share.
 		CloudFileDirectory rootDir = share.getRootDirectoryReference();
 
+		CloudFile file;
 		// Get a reference to the directory that contains the file
-		CloudFileDirectory sampleDir = rootDir.getDirectoryReference(dirName);
-
-		// Get a reference to the file you want to download
-		CloudFile file = sampleDir.getFileReference(fileName);
+		if (dirName == null || "".equals(dirName)) {// dirName为空，则查找根共享下的文件
+			file = rootDir.getFileReference(fileName);
+		} else {
+			CloudFileDirectory sampleDir = rootDir.getDirectoryReference(dirName);
+			// Get a reference to the file you want to download
+			file = sampleDir.getFileReference(fileName);
+		}
 
 		// Write the contents of the file to the console.
 		// System.out.println(file.downloadText());
-		System.out.println(file.downloadText());
-		return file.downloadText();
+		// System.out.println(file.downloadText());
+		return file;
 	}
 
 	/**
@@ -205,25 +322,29 @@ public class AzureCloudFile {
 	 *            目录名
 	 * @param fileName
 	 *            文件名
+	 * @return
 	 * @throws StorageException
 	 * @throws URISyntaxException
 	 * @Author Yu Jinshui
 	 * @createTime 2016年4月1日 下午4:02:28
 	 */
-	public void deleteFile(CloudFileShare share, String dirName, String fileName)
+	public boolean deleteFile(CloudFileShare share, String dirName, String fileName)
 			throws StorageException, URISyntaxException {
 		// Get a reference to the root directory for the share.
 		CloudFileDirectory rootDir = share.getRootDirectoryReference();
 
 		// Get a reference to the directory where the file to be deleted is in
-		CloudFileDirectory containerDir = rootDir.getDirectoryReference(dirName);
-
 		CloudFile file;
-
-		file = containerDir.getFileReference(fileName);
-		if (file.deleteIfExists()) {
-			System.out.println(fileName + " was deleted");
+		if (dirName == null || "".equals(dirName)) {// 没有目录，则直接删除共享下面的文件
+			file = rootDir.getFileReference(fileName);
+		} else {
+			CloudFileDirectory containerDir = rootDir.getDirectoryReference(dirName);
+			file = containerDir.getFileReference(fileName);
 		}
+		return file.deleteIfExists();
 	}
 
+	public void deleteDir(){
+		
+	}
 }
