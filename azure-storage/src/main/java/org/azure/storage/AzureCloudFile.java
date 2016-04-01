@@ -3,10 +3,13 @@ package org.azure.storage;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.ResultSegment;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.file.CloudFile;
 import com.microsoft.azure.storage.file.CloudFileClient;
@@ -278,6 +281,46 @@ public class AzureCloudFile {
 		return filelist;
 	}
 
+	public List<String> fileItemList(CloudFileShare share) {
+		List<String> list = new ArrayList<String>();
+		try {
+			CloudFileDirectory rootDir = share.getRootDirectoryReference();
+
+			item(rootDir, list);
+		} catch (StorageException | URISyntaxException e) {
+			logger.error("获取共享文件列表失败", e);
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	/**
+	 * 递归查找全部目录及文件
+	 *
+	 * @param dir
+	 * @param list
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月1日 下午11:03:56
+	 */
+	private void item(CloudFileDirectory dir, List<String> list) {
+		try {
+			ResultSegment<ListFileItem> itemList = dir.listFilesAndDirectoriesSegmented();
+			for (ListFileItem item : itemList.getResults()) {
+				list.add(item.getUri().toString());
+				try {
+					String name = item.getUri().toString();
+
+					if (!name.substring(name.lastIndexOf("/")).contains("."))// 最后一级属于文件类型（后缀名），则不进行解析，直接跳过进行下次循环
+						item(dir.getDirectoryReference(name.substring(name.lastIndexOf("/") + 1)), list);
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+			}
+		} catch (StorageException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * 下载并显示文件内容
 	 *
@@ -308,9 +351,6 @@ public class AzureCloudFile {
 			file = sampleDir.getFileReference(fileName);
 		}
 
-		// Write the contents of the file to the console.
-		// System.out.println(file.downloadText());
-		// System.out.println(file.downloadText());
 		return file;
 	}
 
@@ -344,7 +384,34 @@ public class AzureCloudFile {
 		return file.deleteIfExists();
 	}
 
-	public void deleteDir(){
-		
+	/**
+	 * 目录删除
+	 * <p>
+	 * 删除目录相当简单，但需注意的是，你不能删除仍然包含有文件或其他目录的目录。
+	 *
+	 * @param share
+	 * @param dirName
+	 *            目录名称
+	 * @throws StorageException
+	 * @throws URISyntaxException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月1日 下午11:07:57
+	 */
+	public void deleteDir(CloudFileShare share, String dirName) throws StorageException, URISyntaxException {
+		// Get a reference to the root directory for the share.
+		CloudFileDirectory rootDir = share.getRootDirectoryReference();
+		// Get a reference to the directory you want to delete
+		CloudFileDirectory containerDir = rootDir.getDirectoryReference(dirName);
+		// Delete the directory
+		if (containerDir.deleteIfExists()) {
+			System.out.println("Directory deleted");
+		} else {
+			System.out.println("Directory is not exists");
+		}
+	}
+
+	public void deleteDir(String shareName, String dirName) throws URISyntaxException, StorageException {
+		CloudFileShare share = getShare(shareName);
+		deleteDir(share, dirName);
 	}
 }
