@@ -1,71 +1,51 @@
 package org.azure.storage;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-
 import org.apache.log4j.Logger;
-
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.ResultSegment;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.file.CloudFile;
 import com.microsoft.azure.storage.file.CloudFileClient;
 import com.microsoft.azure.storage.file.CloudFileDirectory;
 import com.microsoft.azure.storage.file.CloudFileShare;
+import com.microsoft.azure.storage.file.FileSharePermissions;
 import com.microsoft.azure.storage.file.ListFileItem;
+import com.microsoft.azure.storage.file.SharedAccessFilePermissions;
+import com.microsoft.azure.storage.file.SharedAccessFilePolicy;
 
+/**
+ * 云存储 - file
+ * 
+ * @author Yu Jinshui
+ * @createTime 2016年4月2日 下午4:44:46
+ */
 public class AzureCloudFile {
 
-	private String storageConnectionString;
-	/**
-	 * // 连接到 Azure 存储帐户<br>
-	 * 若要连接到你的存储帐户，你需要使用 CloudStorageAccount 对象，以便将连接字符串传递到 parse 方法。 <br>
-	 * Use the CloudStorageAccount object to connect to your storage account
-	 * 
-	 */
-	private CloudStorageAccount storageAccount;
-
-	/**
-	 * // 如何：创建共享<br>
-	 * // 文件存储中的所有文件和目录都位于名为 Share<br>
-	 * // 的容器内。你的存储帐户可以拥有无数的共享，只要你的帐户容量允许。若要获得共享及其内容的访问权限，你需要使用文件存储客户端。 <br>
-	 * // Create the file storage client.<br>
-	 * 使用文件存储客户端以后，你就可以获得对共享的引用。
-	 */
 	private CloudFileClient fileClient;
 
 	private static final Logger logger = Logger.getLogger(AzureCloudFile.class);
 
 	public AzureCloudFile(AzureConfig config) {
-		storageConnectionString = "DefaultEndpointsProtocol=" + config.protocol() + ";"//
-				+ "AccountName=" + config.accountName() + ";"//
-				+ "AccountKey=" + config.accountKey() + ";"//
-				+ "EndpointSuffix=" + config.endpointSuffix()//
-		;
-
 		try {
-			storageAccount = CloudStorageAccount.parse(storageConnectionString);
-			fileClient = storageAccount.createCloudFileClient();
+			fileClient = AzureCloudAccount.getCloudStorageAccount(config).createCloudFileClient();
 		} catch (InvalidKeyException | URISyntaxException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
 	 * 获取共享名
-	 *
-	 * @param shareName
-	 *            共享名称
-	 * @return
-	 * @throws StorageException
-	 * @throws URISyntaxException
-	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午2:34:47
+	 * 
+	 * @see org.azure.storage.AzureCloud#getShare(java.lang.String)
 	 */
+
 	public CloudFileShare getShare(String shareName) throws URISyntaxException, StorageException {
 		CloudFileShare share;
 		share = fileClient.getShareReference(shareName);
@@ -77,16 +57,15 @@ public class AzureCloudFile {
 	}
 
 	/**
-	 * 创建共享引用
-	 *
-	 * @param shareName
-	 *            共享名
-	 * @return
-	 * @throws StorageException
-	 * @throws URISyntaxException
-	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午6:44:54
+	 * // 如何：创建共享<br>
+	 * // 文件存储中的所有文件和目录都位于名为 Share<br>
+	 * // 的容器内。你的存储帐户可以拥有无数的共享，只要你的帐户容量允许。若要获得共享及其内容的访问权限，你需要使用文件存储客户端。 <br>
+	 * // Create the file storage client.<br>
+	 * 使用文件存储客户端以后，你就可以获得对共享的引用。
+	 * 
+	 * @see org.azure.storage.AzureCloud#createShare(java.lang.String)
 	 */
+
 	public CloudFileShare createShare(String shareName) throws StorageException, URISyntaxException {
 		CloudFileShare share = getShare(shareName);
 		if (share.createIfNotExists()) {
@@ -101,14 +80,10 @@ public class AzureCloudFile {
 	 * 你也可以将文件置于子目录中，不必将其全部置于根目录中，以便对存储进行有效的组织。Azure
 	 * 文件存储服务可以创建任意数目的目录，只要你的帐户允许。以下代码将在根目录下创建名为 sampledir 的子目录。
 	 * 
-	 * @param share
-	 * @param dirName
-	 *            目录名(多级目录以 / 分割)
-	 * @throws StorageException
-	 * @throws URISyntaxException
-	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午3:47:02
+	 * @see org.azure.storage.AzureCloud#createDir(com.microsoft.azure.storage.file.CloudFileShare,
+	 *      java.lang.String)
 	 */
+
 	public CloudFileDirectory createDir(CloudFileShare share, String dirName)
 			throws StorageException, URISyntaxException {
 		CloudFileDirectory sampleDir = null;
@@ -122,16 +97,24 @@ public class AzureCloudFile {
 	}
 
 	/**
-	 * 获取目录
-	 *
-	 * @param share
-	 * @param dirName
-	 * @return
-	 * @throws StorageException
-	 * @throws URISyntaxException
-	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午7:25:32
+	 * 创建共享以及目录名
+	 * 
+	 * @see org.azure.storage.AzureCloud#createDir(java.lang.String,
+	 *      java.lang.String)
 	 */
+
+	public CloudFileDirectory createDir(String shareName, String dirName) throws URISyntaxException, StorageException {
+		CloudFileShare share = getShare(shareName);
+		return createDir(share, dirName);
+	}
+
+	/**
+	 * 获取目录
+	 * 
+	 * @see org.azure.storage.AzureCloud#getDir(com.microsoft.azure.storage.file.CloudFileShare,
+	 *      java.lang.String)
+	 */
+
 	public CloudFileDirectory getDir(CloudFileShare share, String dirName) throws StorageException, URISyntaxException {
 		// Get a reference to the root directory for the share.
 		CloudFileDirectory rootDir = share.getRootDirectoryReference();
@@ -142,54 +125,23 @@ public class AzureCloudFile {
 
 	/**
 	 * 获取共享目录
-	 *
-	 * @param shareName
-	 *            共享名称
-	 * @param dirName
-	 *            目录名称
-	 * @return
-	 * @throws StorageException
-	 * @throws URISyntaxException
-	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午7:28:14
+	 * 
+	 * @see org.azure.storage.AzureCloud#getDir(java.lang.String,
+	 *      java.lang.String)
 	 */
+
 	public CloudFileDirectory getDir(String shareName, String dirName) throws StorageException, URISyntaxException {
 		CloudFileShare share = getShare(shareName);
 		return getDir(share, dirName);
 	}
 
 	/**
-	 * 创建共享以及目录名
-	 * 
-	 * @param shareName
-	 *            共享名称
-	 * @param dirName
-	 *            共享下的目录
-	 * @return
-	 * @throws URISyntaxException
-	 * @throws StorageException
-	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午6:34:23
-	 */
-	public CloudFileDirectory createDir(String shareName, String dirName) throws URISyntaxException, StorageException {
-		CloudFileShare share = getShare(shareName);
-		return createDir(share, dirName);
-	}
-
-	/**
 	 * 上传文件
 	 * 
-	 * @param share
-	 *            共享信息
-	 * @param itemName
-	 *            目录名(多级目录以 / 分割)
-	 * @param filePathName
-	 *            待上传文件路径
-	 * @param outputName
-	 *            上传后的展示名称
-	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午2:38:35
+	 * @see org.azure.storage.AzureCloud#uploadFile(com.microsoft.azure.storage.file.CloudFileShare,
+	 *      java.lang.String, java.lang.String, java.lang.String)
 	 */
+
 	public void uploadFile(CloudFileShare share, String itemName, String filePathName, String outputName) {
 
 		// 上载文件的第一步是获取对文件所在的目录的引用。为此，你需要调用共享对象的 getRootDirectoryReference
@@ -214,18 +166,11 @@ public class AzureCloudFile {
 
 	/**
 	 * 上传文件
-	 *
-	 * @param shareName
-	 *            共享名
-	 * @param itemName
-	 *            目录名
-	 * @param filePathName
-	 *            待上传文件路径
-	 * @param outputName
-	 *            文件名
-	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午6:39:28
+	 * 
+	 * @see org.azure.storage.AzureCloud#uploadFile(java.lang.String,
+	 *      java.lang.String, java.lang.String, java.lang.String)
 	 */
+
 	public void uploadFile(String shareName, String itemName, String filePathName, String outputName) {
 		try {
 			CloudFileShare share = getShare(shareName);
@@ -237,58 +182,22 @@ public class AzureCloudFile {
 	}
 
 	/**
-	 * 
-	 *
-	 * @param shareName
-	 * @param dirName
-	 * @param fileName
-	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午7:08:45
-	 * @deprecated
-	 */
-	public void uploadFile_NotCheckDir(String shareName, String itemName, String dirName, String fileName) {
-		try {
-			CloudFileShare share = createShare(shareName);
-			uploadFile(share, itemName, dirName, fileName);
-		} catch (URISyntaxException | StorageException e) {
-			logger.error("上传失败", e);
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * // 如何：列出共享中的文件和目录 <br>
 	 * // 可以轻松获取共享中文件和目录的列表，只需针对 CloudFileDirectory 引用调用 <br>
 	 * // listFilesAndDirectories 即可。该方法将返回你可以对其进行循环访问的 ListFileItem <br>
 	 * // 对象的列表。例如，下面的代码将列出根目录中的文件和目录。
-	 *
 	 * 
-	 * @param share
-	 * @param shareName
-	 * @return
-	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午2:52:59
+	 * @see org.azure.storage.AzureCloud#fileItemList(com.microsoft.azure.storage.file.CloudFileShare)
 	 */
-	public Iterable<ListFileItem> fileList(CloudFileShare share) {
-		Iterable<ListFileItem> filelist = null;
-		try {
-			CloudFileDirectory rootDir = share.getRootDirectoryReference();
-			filelist = rootDir.listFilesAndDirectories();
-		} catch (StorageException | URISyntaxException e) {
-			logger.error("获取共享文件列表失败", e);
-			e.printStackTrace();
-		}
-		return filelist;
-	}
-
 	public List<String> fileItemList(CloudFileShare share) {
 		List<String> list = new ArrayList<String>();
 		try {
 			CloudFileDirectory rootDir = share.getRootDirectoryReference();
-
-			item(rootDir, list);
+			listFiles(rootDir, list);
 		} catch (StorageException | URISyntaxException e) {
 			logger.error("获取共享文件列表失败", e);
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
 		return list;
@@ -297,27 +206,21 @@ public class AzureCloudFile {
 	/**
 	 * 递归查找全部目录及文件
 	 *
-	 * @param dir
+	 * @param rootDir
 	 * @param list
+	 * @throws MalformedURLException
 	 * @Author Yu Jinshui
-	 * @createTime 2016年4月1日 下午11:03:56
+	 * @createTime 2016年4月2日 下午2:27:40
 	 */
-	private void item(CloudFileDirectory dir, List<String> list) {
-		try {
-			ResultSegment<ListFileItem> itemList = dir.listFilesAndDirectoriesSegmented();
-			for (ListFileItem item : itemList.getResults()) {
-				list.add(item.getUri().toString());
-				try {
-					String name = item.getUri().toString();
-
-					if (!name.substring(name.lastIndexOf("/")).contains("."))// 最后一级属于文件类型（后缀名），则不进行解析，直接跳过进行下次循环
-						item(dir.getDirectoryReference(name.substring(name.lastIndexOf("/") + 1)), list);
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
+	private void listFiles(CloudFileDirectory dir, List<String> list) throws MalformedURLException {
+		Iterable<ListFileItem> filelist = dir.listFilesAndDirectories();
+		Iterator<ListFileItem> it = filelist.iterator();
+		while (it.hasNext()) {
+			ListFileItem file = it.next();
+			list.add(file.getUri().toURL().toString());
+			if (file instanceof CloudFileDirectory) {// 属于目录，则继续递归
+				listFiles((CloudFileDirectory) file, list);
 			}
-		} catch (StorageException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -336,6 +239,7 @@ public class AzureCloudFile {
 	 * @Author Yu Jinshui
 	 * @createTime 2016年4月1日 下午3:21:20
 	 */
+
 	public CloudFile downloadFile(CloudFileShare share, String dirName, String fileName)
 			throws StorageException, URISyntaxException, IOException {
 		// Get a reference to the root directory for the share.
@@ -368,6 +272,7 @@ public class AzureCloudFile {
 	 * @Author Yu Jinshui
 	 * @createTime 2016年4月1日 下午4:02:28
 	 */
+
 	public boolean deleteFile(CloudFileShare share, String dirName, String fileName)
 			throws StorageException, URISyntaxException {
 		// Get a reference to the root directory for the share.
@@ -397,6 +302,7 @@ public class AzureCloudFile {
 	 * @Author Yu Jinshui
 	 * @createTime 2016年4月1日 下午11:07:57
 	 */
+
 	public void deleteDir(CloudFileShare share, String dirName) throws StorageException, URISyntaxException {
 		// Get a reference to the root directory for the share.
 		CloudFileDirectory rootDir = share.getRootDirectoryReference();
@@ -410,8 +316,58 @@ public class AzureCloudFile {
 		}
 	}
 
+	/**
+	 * 目录删除
+	 * <p>
+	 * 删除目录相当简单，但需注意的是，你不能删除仍然包含有文件或其他目录的目录。
+	 *
+	 * @param shareName
+	 * @param dirName
+	 *            目录名
+	 * @throws URISyntaxException
+	 * @throws StorageException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月3日 下午1:38:33
+	 */
 	public void deleteDir(String shareName, String dirName) throws URISyntaxException, StorageException {
 		CloudFileShare share = getShare(shareName);
 		deleteDir(share, dirName);
+	}
+
+	/**
+	 * 
+	 * 尚未研究明白如何使用【权限设置】
+	 *
+	 * @param shareName
+	 * @throws URISyntaxException
+	 * @throws StorageException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月3日 下午2:53:17
+	 * @deprecated
+	 */
+	public void createPublicShare(String shareName) throws URISyntaxException, StorageException {// SharedAccessFilePolicy
+		CloudFileShare share = getShare(shareName);
+		FileSharePermissions sharePermissions = new FileSharePermissions();
+		SharedAccessFilePolicy policy = new SharedAccessFilePolicy();
+
+		EnumSet<SharedAccessFilePermissions> enumSet = EnumSet.noneOf(SharedAccessFilePermissions.class);
+		enumSet.add(SharedAccessFilePermissions.READ);
+		policy.setPermissions(enumSet);
+
+		HashMap<String, SharedAccessFilePolicy> sharedAccessPolicies = new HashMap<String, SharedAccessFilePolicy>();
+		sharedAccessPolicies.put("read", policy);
+		sharePermissions.setSharedAccessPolicies(sharedAccessPolicies);
+
+		// HashMap<String, SharedAccessFilePolicy> per =
+		// sharePermissions.getSharedAccessPolicies();
+		// Set<Entry<String, SharedAccessFilePolicy>> set = per.entrySet();
+		// for (Entry<String, SharedAccessFilePolicy> s : set) {
+		// System.out.println(s.getKey() + "=" + s.getValue());
+		// }
+		share.uploadPermissions(sharePermissions);
+
+	}
+
+	public static void main(String[] args) {
 	}
 }

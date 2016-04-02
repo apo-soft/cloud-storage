@@ -2,13 +2,9 @@ package org.azure.storage;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
-
-import com.microsoft.azure.storage.ResultSegment;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.file.CloudFileShare;
-import com.microsoft.azure.storage.file.ListFileItem;
 
 public class AzureFile {
 	AzureConfig config = new AzurePropertiesConfig("E:\\environments\\store\\azure_store\\azure.properties", "utf-8");
@@ -30,21 +26,7 @@ public class AzureFile {
 
 	}
 
-	public void azureList() {
-		CloudFileShare share;
-		try {
-			share = acfile.getShare("sampleshare");
-			Iterable<ListFileItem> list = acfile.fileList(share);
-			for (ListFileItem file : list) {
-				System.out.println(file.getUri());// 列出共享中的全部目录以及文件名【不包含子目录以及文件】
-			}
-
-		} catch (URISyntaxException | StorageException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void download(String shareName, String dirName, String fileName) {
+	public void download(String shareName, String dirName, String fileName, String charset) {
 		CloudFileShare share = null;
 		try {
 			share = acfile.getShare(shareName);
@@ -54,7 +36,7 @@ public class AzureFile {
 		try {
 			// String content = acfile.downloadFile(share, dirName,
 			// fileName).downloadText();//以云平台默认编码格式访问
-			String content = acfile.downloadFile(share, dirName, fileName).downloadText("GBK", null, null, null);// 自定义访问编码
+			String content = acfile.downloadFile(share, dirName, fileName).downloadText(charset, null, null, null);// 自定义访问编码
 			System.out.println("内容：" + content);
 		} catch (StorageException | URISyntaxException | IOException e) {
 			System.out.println("下载异常");
@@ -100,4 +82,13 @@ public class AzureFile {
 			e.printStackTrace();
 		}
 	}
+	
+	public void createPublicPermission(String shareName){
+		try {
+			acfile.createPublicShare(shareName);
+		} catch (URISyntaxException | StorageException e) {
+			e.printStackTrace();
+		}
+	}
+	
 }
