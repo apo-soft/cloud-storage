@@ -10,7 +10,6 @@ import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Logger;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobContainerPermissions;
 import com.microsoft.azure.storage.blob.BlobContainerPublicAccessType;
@@ -27,8 +26,6 @@ import com.microsoft.azure.storage.blob.ListBlobItem;
  * @createTime 2016年4月2日 下午4:45:06
  */
 public class AzureCloudBlob {
-
-	private static final Logger logger = Logger.getLogger(AzureCloudBlob.class);
 	private CloudBlobClient blobClient;
 
 	public AzureCloudBlob(AzureConfig config) {

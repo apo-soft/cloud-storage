@@ -9,7 +9,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Logger;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.file.CloudFile;
 import com.microsoft.azure.storage.file.CloudFileClient;
@@ -29,8 +28,6 @@ import com.microsoft.azure.storage.file.SharedAccessFilePolicy;
 public class AzureCloudFile {
 
 	private CloudFileClient fileClient;
-
-	private static final Logger logger = Logger.getLogger(AzureCloudFile.class);
 
 	public AzureCloudFile(AzureConfig config) {
 		try {
@@ -138,47 +135,47 @@ public class AzureCloudFile {
 	/**
 	 * 上传文件
 	 * 
+	 * @throws URISyntaxException
+	 * @throws StorageException
+	 * @throws IOException
+	 * 
 	 * @see org.azure.storage.AzureCloud#uploadFile(com.microsoft.azure.storage.file.CloudFileShare,
 	 *      java.lang.String, java.lang.String, java.lang.String)
 	 */
 
-	public void uploadFile(CloudFileShare share, String itemName, String filePathName, String outputName) {
+	public void uploadFile(CloudFileShare share, String itemName, String filePathName, String outputName)
+			throws StorageException, URISyntaxException, IOException {
 
 		// 上载文件的第一步是获取对文件所在的目录的引用。为此，你需要调用共享对象的 getRootDirectoryReference
 		// 方法。
 
 		// Get a reference to the root directory for the share.
 		CloudFileDirectory leafDir;
-		try {
-			leafDir = share.getRootDirectoryReference();
-			// 现在，你已经有了共享所在的根目录的引用，因此可以使用以下代码来上载文件。
-			if (itemName != null && !"".equals(itemName)) {
-				leafDir = leafDir.getDirectoryReference(itemName);
-			}
-			CloudFile cloudFile = leafDir.getFileReference(outputName);
-			cloudFile.uploadFromFile(filePathName);
-		} catch (IOException | StorageException | URISyntaxException e) {
-			logger.error("文件上传异常。", e);
-			e.printStackTrace();
+		leafDir = share.getRootDirectoryReference();
+		// 现在，你已经有了共享所在的根目录的引用，因此可以使用以下代码来上载文件。
+		if (itemName != null && !"".equals(itemName)) {
+			leafDir = leafDir.getDirectoryReference(itemName);
 		}
+		CloudFile cloudFile = leafDir.getFileReference(outputName);
+		cloudFile.uploadFromFile(filePathName);
 
 	}
 
 	/**
 	 * 上传文件
 	 * 
+	 * @throws StorageException
+	 * @throws URISyntaxException
+	 * @throws IOException
+	 * 
 	 * @see org.azure.storage.AzureCloud#uploadFile(java.lang.String,
 	 *      java.lang.String, java.lang.String, java.lang.String)
 	 */
 
-	public void uploadFile(String shareName, String itemName, String filePathName, String outputName) {
-		try {
-			CloudFileShare share = getShare(shareName);
-			uploadFile(share, itemName, filePathName, outputName);
-		} catch (URISyntaxException | StorageException e) {
-			logger.error("上传失败 ,共享名不可为空", e);
-			e.printStackTrace();
-		}
+	public void uploadFile(String shareName, String itemName, String filePathName, String outputName)
+			throws URISyntaxException, StorageException, IOException {
+		CloudFileShare share = getShare(shareName);
+		uploadFile(share, itemName, filePathName, outputName);
 	}
 
 	/**
@@ -187,19 +184,17 @@ public class AzureCloudFile {
 	 * // listFilesAndDirectories 即可。该方法将返回你可以对其进行循环访问的 ListFileItem <br>
 	 * // 对象的列表。例如，下面的代码将列出根目录中的文件和目录。
 	 * 
+	 * @throws URISyntaxException
+	 * @throws StorageException
+	 * @throws MalformedURLException
+	 * 
 	 * @see org.azure.storage.AzureCloud#fileItemList(com.microsoft.azure.storage.file.CloudFileShare)
 	 */
-	public List<String> fileItemList(CloudFileShare share) {
+	public List<String> fileItemList(CloudFileShare share)
+			throws StorageException, URISyntaxException, MalformedURLException {
 		List<String> list = new ArrayList<String>();
-		try {
-			CloudFileDirectory rootDir = share.getRootDirectoryReference();
-			listFiles(rootDir, list);
-		} catch (StorageException | URISyntaxException e) {
-			logger.error("获取共享文件列表失败", e);
-			e.printStackTrace();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+		CloudFileDirectory rootDir = share.getRootDirectoryReference();
+		listFiles(rootDir, list);
 		return list;
 	}
 

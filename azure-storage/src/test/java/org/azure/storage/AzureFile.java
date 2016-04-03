@@ -1,6 +1,7 @@
 package org.azure.storage;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
 import com.microsoft.azure.storage.StorageException;
@@ -20,7 +21,7 @@ public class AzureFile {
 				System.out.println(item);
 			}
 
-		} catch (URISyntaxException | StorageException e) {
+		} catch (URISyntaxException | StorageException | MalformedURLException e) {
 			e.printStackTrace();
 		}
 
@@ -72,7 +73,11 @@ public class AzureFile {
 	}
 
 	public void uploadFile(String shareName, String itemName, String filePathName, String outputName) {
-		acfile.uploadFile(shareName, itemName, filePathName, outputName);
+		try {
+			acfile.uploadFile(shareName, itemName, filePathName, outputName);
+		} catch (URISyntaxException | StorageException | IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void deleteDir(String shareName, String dirName) {
@@ -82,13 +87,13 @@ public class AzureFile {
 			e.printStackTrace();
 		}
 	}
-	
-	public void createPublicPermission(String shareName){
+
+	public void createPublicPermission(String shareName) {
 		try {
 			acfile.createPublicShare(shareName);
 		} catch (URISyntaxException | StorageException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 }
