@@ -5,6 +5,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.azure.storage.storetype.AzureCloudBlob;
+
 import com.microsoft.azure.storage.StorageException;
 
 /**
@@ -36,6 +38,7 @@ public class AzureBlob {
 	}
 
 	public void uploadBlob(String containerName, final String filePathName, String outputName) {
+		System.out.println("文件上传开始。。。");
 		try {
 			acBlob.uploadBlob(containerName, filePathName, outputName);
 		} catch (URISyntaxException | StorageException | IOException e) {

@@ -1,4 +1,4 @@
-package org.azure.storage;
+package org.azure.storage.storetype;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +10,10 @@ import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.azure.storage.AzureCloudAccount;
+import org.azure.storage.AzureConfig;
+
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobContainerPermissions;
 import com.microsoft.azure.storage.blob.BlobContainerPublicAccessType;

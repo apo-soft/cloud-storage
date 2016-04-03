@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
+
+import org.azure.storage.storetype.AzureCloudFile;
+
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.file.CloudFileShare;
 

@@ -18,11 +18,12 @@ public class AzureTest {
 	private void ABlob() {
 		AzureBlob test = new AzureBlob();
 		// test.createContainer("blobcontainer");
-		// test.uploadBlob("blobcontainer", "F:/img.jpg", "img.jpg");
-		test.createPublicContainer("blobcontainer");
+		test.uploadBlob("blobcontainer/music", "F:/龙梅子 - 泪满天.mp3", "泪满天.mp3");
+		// test.createPublicContainer("blobcontainer");
 		// test.blobItemList("blobcontainer-b");
 		test.blobList();
 		// test.deleteContainer("blobcontainer-c");
+		// test.deleteContainerBlob("blobcontainer", "死侍");
 	}
 
 	public static void main(String[] args) {
