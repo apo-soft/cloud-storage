@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -118,6 +119,12 @@ public class AzureCloudBlob {
 
 	/**
 	 * 配置进行公共访问的容器
+	 * <p>
+	 * 注意这边容器的名称必须要都是小写字母。 <br>
+	 * 访问属性通过PublicAccess设置，该属性有三种级别，Off，Blob和Containe<br>
+	 * ·Off表示只有使用账号才能访问Storage中的内容，也就是内容不公开<br>
+	 * ·Blob的话表示匿名用户也可以读取容器中的内容，但是容器本身的信息不公开。<br>
+	 * ·Container表示包括容器以及其中的内容对匿名用户都是公开的。
 	 *
 	 * @param containerName
 	 *            容器名称
@@ -166,6 +173,48 @@ public class AzureCloudBlob {
 		CloudBlockBlob blob = container.getBlockBlobReference(outputName);
 		File source = new File(filePathName);
 		blob.upload(new FileInputStream(source), source.length());
+	}
+
+	/**
+	 * 流方式上传文件处理
+	 *
+	 * @param container
+	 * @param inputStream
+	 * @param fileLength
+	 * @param outputName
+	 * @throws URISyntaxException
+	 * @throws StorageException
+	 * @throws IOException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月5日 下午12:48:38
+	 */
+	private void uploadBlob(CloudBlobContainer container, InputStream inputStream, long fileLength, String outputName)
+			throws URISyntaxException, StorageException, IOException {
+		CloudBlockBlob blob = container.getBlockBlobReference(outputName);
+		blob.upload(inputStream, fileLength);
+	}
+
+	/**
+	 * 文件上传方式【文件流方式】直接上传
+	 *
+	 * @param containerName
+	 *            容器名
+	 * @param inputStream
+	 *            输入流
+	 * @param fileLength
+	 *            文件长度
+	 * @param outputName
+	 *            文件展示名称
+	 * @throws URISyntaxException
+	 * @throws StorageException
+	 * @throws IOException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月5日 下午12:47:14
+	 */
+	public void uploadBlob(String containerName, InputStream inputStream, long fileLength, String outputName)
+			throws URISyntaxException, StorageException, IOException {
+		CloudBlobContainer container = getContainer(containerName);
+		uploadBlob(container, inputStream, fileLength, outputName);
 	}
 
 	/**

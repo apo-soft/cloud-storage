@@ -18,7 +18,7 @@ public class AzureTest {
 	private void ABlob() {
 		AzureBlob test = new AzureBlob();
 		// test.createContainer("blobcontainer");
-		test.uploadBlob("blobcontainer/music", "F:/龙梅子 - 泪满天.mp3", "泪满天.mp3");
+//		test.uploadBlob("blobcontainer/music", "F:/龙梅子 - 泪满天.mp3", "泪满天.mp3");
 		// test.createPublicContainer("blobcontainer");
 		// test.blobItemList("blobcontainer-b");
 		test.blobList();
