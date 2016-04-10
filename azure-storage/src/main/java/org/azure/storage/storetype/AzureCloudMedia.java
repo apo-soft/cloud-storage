@@ -4,6 +4,9 @@ import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.EnumSet;
 
+import org.azure.storage.AzureConfig;
+import org.azure.storage.AzurePropertiesConfig;
+
 import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.services.media.MediaConfiguration;
@@ -29,25 +32,21 @@ import com.microsoft.windowsazure.services.media.models.MediaProcessorInfo;
 import com.microsoft.windowsazure.services.media.models.Task;
 
 /**
- * 媒体服务
+ * 媒体服务- 需要单独申请账号
+ * <p>
+ * {@link https://www.azure.cn/documentation/articles/media-services-create-account}
  * 
  * @author Yu Jinshui
  * @createTime 2016年4月3日 下午7:37:32
  */
 public class AzureCloudMedia {
-	public static void main(String[] args) {
-		HelloMediaServices hello = new HelloMediaServices();
-		hello.main(null);
-	}
+	private AzureConfig config;
 
-}
-
-class HelloMediaServices {
 	// Media Services account credentials configuration
 	private static String mediaServiceUri = "https://media.windows.cn/API/";
 	private static String oAuthUri = "https://wamsprodglobal001acs.accesscontrol.chinacloudapi.cn/v2/OAuth2-13";
-	private static String clientId = "account name";
-	private static String clientSecret = "account key";
+	// private static String accountName = "account name";
+	// private static String accountKey = "account key";
 	private static String scope = "urn:WindowsAzureMediaServices";
 
 	// Encoder configuration
@@ -55,17 +54,29 @@ class HelloMediaServices {
 	private static String encodingPreset = "H264 Multiple Bitrate 720p";
 	static MediaContract mediaService = null;// TODO 临时应用，仅消除错误用
 
-	public static void main(String[] args) {
+	public AzureCloudMedia(AzureConfig config) {
+		this.config = config;
+	}
+
+	/**
+	 * 主方法体
+	 *
+	 * @param fileName
+	 *            待上传文件名【视频文件】
+	 * @Author Yu Jinshui
+	 * @createTime 2016年4月10日 上午11:48:27
+	 */
+	public void media(String fileName) {
 
 		try {
 			// Set up the MediaContract object to call into the Media Services
 			// account
 			Configuration configuration = MediaConfiguration.configureWithOAuthAuthentication(mediaServiceUri, oAuthUri,
-					clientId, clientSecret, scope);
+					config.accountName(), config.accountKey(), scope);
 			mediaService = MediaService.create(configuration);
 
 			// Upload a local file to an Asset
-			AssetInfo uploadAsset = uploadFileAndCreateAsset("BigBuckBunny.mp4");
+			AssetInfo uploadAsset = uploadFileAndCreateAsset(fileName);
 			System.out.println("Uploaded Asset Id: " + uploadAsset.getId());
 
 			// Transform the Asset
@@ -217,6 +228,13 @@ class HelloMediaServices {
 				done = true;
 			}
 		}
+	}
+
+	public static void main(String[] args) {
+		AzureConfig config = new AzurePropertiesConfig(
+				"E:\\environments\\properties\\store\\azure_store\\azure.properties", "utf-8");
+		AzureCloudMedia media = new AzureCloudMedia(config);
+		media.media("f:/shendunju.mp4");
 	}
 
 }

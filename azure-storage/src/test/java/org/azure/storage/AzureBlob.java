@@ -16,7 +16,7 @@ import com.microsoft.azure.storage.StorageException;
  * @createTime 2016年4月2日 下午3:42:40
  */
 public class AzureBlob {
-	AzureConfig config = new AzurePropertiesConfig("E:\\environments\\store\\azure_store\\azure.properties", "utf-8");
+	AzureConfig config = new AzurePropertiesConfig("E:\\environments\\properties\\store\\azure_store\\azure.properties", "utf-8");
 	AzureCloudBlob acBlob = new AzureCloudBlob(config);
 
 	public void createContainer(String containerName) {

@@ -9,10 +9,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
 import org.azure.storage.AzureCloudAccount;
 import org.azure.storage.AzureConfig;
-
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.file.CloudFile;
 import com.microsoft.azure.storage.file.CloudFileClient;
@@ -48,13 +46,7 @@ public class AzureCloudFile {
 	 */
 
 	public CloudFileShare getShare(String shareName) throws URISyntaxException, StorageException {
-		CloudFileShare share;
-		share = fileClient.getShareReference(shareName);
-		// 实际创建共享时，请使用 CloudFileShare 对象的 createIfNotExists 方法。
-
-		// 而在目前，share 保留对名为 sampleshare 的共享的引用。
-		return share;
-
+		return fileClient.getShareReference(shareName);
 	}
 
 	/**
@@ -364,6 +356,21 @@ public class AzureCloudFile {
 		// System.out.println(s.getKey() + "=" + s.getValue());
 		// }
 		share.uploadPermissions(sharePermissions);
+
+	}
+
+	public void createPublicPermission(String shareName)
+			throws URISyntaxException, StorageException, InvalidKeyException {
+		CloudFileShare share = getShare(shareName);
+
+		FileSharePermissions permissions = new FileSharePermissions();
+		HashMap<String, SharedAccessFilePolicy> sharedAccessPolicies = new HashMap<>();
+		SharedAccessFilePolicy value = new SharedAccessFilePolicy();
+
+		value.setPermissionsFromString("r");
+		sharedAccessPolicies.put("policy", value);
+		permissions.setSharedAccessPolicies(sharedAccessPolicies);
+		share.uploadPermissions(permissions);
 
 	}
 

@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>${azure.group}</groupId>
 			<artifactId>azure-storage</artifactId>
-			<version>4.0.0</version>
+			<version>4.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>${azure.group}</groupId>
