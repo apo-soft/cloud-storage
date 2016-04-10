@@ -4,8 +4,8 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.EnumSet;
 
-import org.azure.storage.AzureCloudAccount;
 import org.azure.storage.AzureConfig;
+import org.azure.storage.config.AzureCloudAccount;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.queue.CloudQueue;

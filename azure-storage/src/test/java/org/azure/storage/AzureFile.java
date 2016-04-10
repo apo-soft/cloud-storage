@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.List;
 
+import org.azure.storage.config.AzurePropertiesConfig;
 import org.azure.storage.storetype.AzureCloudFile;
 
 import com.microsoft.azure.storage.StorageException;

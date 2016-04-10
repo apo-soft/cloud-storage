@@ -1,7 +1,9 @@
-package org.azure.storage;
+package org.azure.storage.config;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
+
+import org.azure.storage.AzureConfig;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 

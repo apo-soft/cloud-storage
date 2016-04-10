@@ -9,8 +9,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import org.azure.storage.AzureCloudAccount;
+
 import org.azure.storage.AzureConfig;
+import org.azure.storage.config.AzureCloudAccount;
+
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.file.CloudFile;
 import com.microsoft.azure.storage.file.CloudFileClient;

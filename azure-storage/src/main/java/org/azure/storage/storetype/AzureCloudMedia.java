@@ -5,7 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.EnumSet;
 
 import org.azure.storage.AzureConfig;
-import org.azure.storage.AzurePropertiesConfig;
+import org.azure.storage.config.AzurePropertiesConfig;
 
 import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.exception.ServiceException;

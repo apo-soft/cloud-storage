@@ -1,4 +1,4 @@
-package org.azure.storage;
+package org.azure.storage.config;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.azure.storage.AzureConfig;
 
 /**
  * 配置实现类

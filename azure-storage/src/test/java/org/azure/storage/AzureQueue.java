@@ -2,6 +2,7 @@ package org.azure.storage;
 
 import java.net.URISyntaxException;
 
+import org.azure.storage.config.AzurePropertiesConfig;
 import org.azure.storage.storetype.AzureCloudQueue;
 
 import com.microsoft.azure.storage.StorageException;
