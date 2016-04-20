@@ -21,12 +21,12 @@ public class AzureTest {
 		AzureBlob test = new AzureBlob();
 		// test.createContainer("blobcontainer");
 		// test.uploadBlob("blobcontainer/music", "F:/龙梅子 - 泪满天.mp3",
-		// "泪满天.mp3");
+		test.uploadBlob("blobcontainer/music", "F:/1.jpg", "test.jpg");
 		// test.createPublicContainer("blobcontainer");
 		// test.blobItemList("blobcontainer-b");
-		test.blobList();
+		test.blobList();//image/jpeg
 		// test.deleteContainer("blobcontainer-c");
-		// test.deleteContainerBlob("blobcontainer", "死侍");
+//		 test.deleteContainerBlob("blobcontainer/music", "test.jpg");
 	}
 
 	private void AQueue() {
@@ -43,7 +43,7 @@ public class AzureTest {
 	public static void main(String[] args) {
 		AzureTest a = new AzureTest();
 		// a.AFile();
-		// a.ABlob();
-		a.AQueue();
+		a.ABlob();
+		// a.AQueue();
 	}
 }

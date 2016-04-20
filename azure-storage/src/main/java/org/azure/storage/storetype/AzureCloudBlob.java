@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -141,9 +144,9 @@ public class AzureCloudBlob {
 
 		// Include public access in the permissions object.
 		containerPermissions.setPublicAccess(BlobContainerPublicAccessType.CONTAINER);
-
 		// Set the permissions on the container.
 		container.uploadPermissions(containerPermissions);
+
 		return container;
 	}
 
@@ -172,6 +175,11 @@ public class AzureCloudBlob {
 
 		CloudBlockBlob blob = container.getBlockBlobReference(outputName);
 		File source = new File(filePathName);
+
+		Path path = Paths.get(filePathName);
+		String contentType = Files.probeContentType(path);
+		blob.getProperties().setContentType(contentType);
+
 		blob.upload(new FileInputStream(source), source.length());
 	}
 
@@ -188,9 +196,11 @@ public class AzureCloudBlob {
 	 * @Author Yu Jinshui
 	 * @createTime 2016年4月5日 下午12:48:38
 	 */
-	private void uploadBlob(CloudBlobContainer container, InputStream inputStream, long fileLength, String outputName)
-			throws URISyntaxException, StorageException, IOException {
+	private void uploadBlob(CloudBlobContainer container, InputStream inputStream, long fileLength, String outputName,
+			String contentType) throws URISyntaxException, StorageException, IOException {
 		CloudBlockBlob blob = container.getBlockBlobReference(outputName);
+		if (contentType != null || !"".equals(contentType))
+			blob.getProperties().setContentType(contentType);//
 		blob.upload(inputStream, fileLength);
 	}
 
@@ -214,7 +224,8 @@ public class AzureCloudBlob {
 	public void uploadBlob(String containerName, InputStream inputStream, long fileLength, String outputName)
 			throws URISyntaxException, StorageException, IOException {
 		CloudBlobContainer container = getContainer(containerName);
-		uploadBlob(container, inputStream, fileLength, outputName);
+		// TODO
+		uploadBlob(container, inputStream, fileLength, outputName, null);
 	}
 
 	/**
