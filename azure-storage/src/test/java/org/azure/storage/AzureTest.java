@@ -1,5 +1,7 @@
 package org.azure.storage;
 
+import org.azure.storage.table.AzureTable;
+
 public class AzureTest {
 
 	private void AFile() {
@@ -11,7 +13,7 @@ public class AzureTest {
 		test.azureItemList();
 		// test.deleteDir("sampleshare", "user");
 		// System.out.println("show file content:");
-		// test.download("/user","sampleshare", "user", "dat", "utf-8");
+		test.download("/user", "sampleshare", "user", "file.txt", "utf-8");
 		// test.deleteFile("", "");
 		// test.createPublicPermission("sampleshare");
 		System.out.println("AFile is over.");
@@ -21,12 +23,12 @@ public class AzureTest {
 		AzureBlob test = new AzureBlob();
 		// test.createContainer("blobcontainer");
 		// test.uploadBlob("blobcontainer/music", "F:/龙梅子 - 泪满天.mp3",
-		test.uploadBlob("blobcontainer/music", "F:/1.jpg", "test.jpg");
+		// test.uploadBlob("blobcontainer/music", "F:/1.jpg", "test.jpg");
 		// test.createPublicContainer("blobcontainer");
 		// test.blobItemList("blobcontainer-b");
-		test.blobList();//image/jpeg
+		test.blobList();// image/jpeg
 		// test.deleteContainer("blobcontainer-c");
-//		 test.deleteContainerBlob("blobcontainer/music", "test.jpg");
+		// test.deleteContainerBlob("blobcontainer/music", "test.jpg");
 	}
 
 	private void AQueue() {
@@ -40,10 +42,18 @@ public class AzureTest {
 		test.deleteMessage(queueName);
 	}
 
+	private void ATable() {
+		AzureTable table = new AzureTable();
+		// table.createTable("people");//table创建不能有下划线
+		table.tableList();
+		table.addEntity("people");
+	}
+
 	public static void main(String[] args) {
 		AzureTest a = new AzureTest();
+		a.ATable();
 		// a.AFile();
-		a.ABlob();
+		// a.ABlob();
 		// a.AQueue();
 	}
 }

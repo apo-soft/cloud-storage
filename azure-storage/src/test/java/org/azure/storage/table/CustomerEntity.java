@@ -12,9 +12,16 @@ import com.microsoft.azure.storage.table.TableServiceEntity;
  * @createTime 2016年4月17日 上午11:37:10
  */
 public class CustomerEntity extends TableServiceEntity {
+	/**
+	 * 
+	 * @param firstName
+	 *            行键
+	 * @param lastName
+	 *            分区键
+	 */
 	public CustomerEntity(String firstName, String lastName) {
-		this.rowKey = firstName;
-		this.partitionKey = lastName;
+		this.rowKey = firstName;// 行键
+		this.partitionKey = lastName;// 分区键
 	}
 
 	public CustomerEntity() {
