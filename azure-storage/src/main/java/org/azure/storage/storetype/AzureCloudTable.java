@@ -70,6 +70,21 @@ public class AzureCloudTable {
 	}
 
 	/**
+	 * 删除表
+	 *
+	 * @param tableName
+	 * @return
+	 * @throws StorageException
+	 * @throws URISyntaxException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年5月20日 下午9:29:29
+	 */
+	public boolean deleteTable(String tableName) throws StorageException, URISyntaxException {
+		CloudTable table = getTable(tableName);
+		return table.deleteIfExists();
+	}
+
+	/**
 	 * 列出所有表名称
 	 *
 	 * @return
@@ -142,5 +157,13 @@ public class AzureCloudTable {
 
 		table.execute(batchOperation);
 	}
+	// TODO 检索分区中的所有实体
+	// TODO 检索分区中的一部分实体
+	// TODO 检索单个实体
+	// TODO 修改实体
+	// TODO 查询实体属性子集
+	// TODO 插入或替换实体
+	// TODO 删除实体
+	// TODO 删除表
 
 }
