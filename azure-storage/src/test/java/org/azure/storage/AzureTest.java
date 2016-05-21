@@ -46,7 +46,9 @@ public class AzureTest {
 		AzureTable table = new AzureTable();
 		// table.createTable("people");//table创建不能有下划线
 		table.tableList();
-		table.addEntity("people");
+		// table.addListEntities("people");
+		// table.findAllEntities("people", "Walter");
+		table.findEntitiesByFilter("people", "hello");
 	}
 
 	public static void main(String[] args) {

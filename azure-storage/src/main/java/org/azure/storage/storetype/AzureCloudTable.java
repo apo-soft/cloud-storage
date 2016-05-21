@@ -4,16 +4,18 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.azure.storage.AzureConfig;
 import org.azure.storage.config.AzureCloudAccount;
-
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.CloudTable;
 import com.microsoft.azure.storage.table.CloudTableClient;
 import com.microsoft.azure.storage.table.TableBatchOperation;
 import com.microsoft.azure.storage.table.TableEntity;
 import com.microsoft.azure.storage.table.TableOperation;
+import com.microsoft.azure.storage.table.TableQuery;
+import com.microsoft.azure.storage.table.TableQuery.Operators;
+import com.microsoft.azure.storage.table.TableQuery.QueryComparisons;
+import com.microsoft.azure.storage.table.TableServiceEntity;
 
 /**
  * 云存储 - table
@@ -22,6 +24,9 @@ import com.microsoft.azure.storage.table.TableOperation;
  * @createTime 2016年4月3日 下午7:35:14
  */
 public class AzureCloudTable {
+	final String PARTITION_KEY = "PartitionKey";
+	final String ROW_KEY = "RowKey";
+	final String TIMESTAMP = "Timestamp";
 	private CloudTableClient tableClient;
 
 	/**
@@ -157,8 +162,105 @@ public class AzureCloudTable {
 
 		table.execute(batchOperation);
 	}
-	// TODO 检索分区中的所有实体
-	// TODO 检索分区中的一部分实体
+
+	/**
+	 * 检索全部实体
+	 *
+	 * @param tableName
+	 *            table名
+	 * @param clazz
+	 *            bean类名
+	 * @return
+	 * @throws URISyntaxException
+	 * @throws StorageException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年5月21日 下午12:01:43
+	 */
+	public <T> Iterable<T> findAllEntities(String tableName, Class<? extends TableServiceEntity> clazz)
+			throws URISyntaxException, StorageException {
+		CloudTable table = tableClient.getTableReference(tableName);
+		TableQuery<? extends TableServiceEntity> partitionQuery = TableQuery.from(clazz);
+		return (Iterable<T>) table.execute(partitionQuery);
+	}
+
+	/**
+	 * 根据partitionKey检索分区中的所有实体
+	 * 
+	 * @param <T>
+	 *
+	 * @param tableName
+	 *            table名
+	 * @param partitionKey
+	 *            分区键
+	 * @param clazz
+	 *            类名
+	 * @return
+	 * @throws URISyntaxException
+	 * @throws StorageException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年5月21日 上午11:19:32
+	 */
+	public <T> Iterable<T> findEntitiesByPartitionKey(String tableName, String partitionKey,
+			Class<? extends TableServiceEntity> clazz) throws URISyntaxException, StorageException {
+		CloudTable table = tableClient.getTableReference(tableName);
+		TableQuery<? extends TableServiceEntity> partitionQuery = null;
+		if (partitionKey == null || "".equals(partitionKey)) {// 默认返回全部实体
+			partitionQuery = TableQuery.from(clazz);
+		} else {
+			// Create a filter condition where the partition key is
+			// partitionKey.
+			String partitionFilter = TableQuery.generateFilterCondition(PARTITION_KEY, QueryComparisons.EQUAL,
+					partitionKey);
+			partitionQuery = TableQuery.from(clazz).where(partitionFilter);
+
+		}
+		return (Iterable<T>) table.execute(partitionQuery);
+	}
+
+	/**
+	 * 检索分区中的一部分实体
+	 *
+	 * @param tableName
+	 *            table名
+	 * @param partitionKey
+	 *            分区键
+	 * @param pFilter
+	 *            分区键(partitionKey)过滤条件,默认相等
+	 * @param rFilter
+	 *            行键rowKey过滤条件。默认相等
+	 * @param filterContent
+	 *            过滤内容
+	 * @return
+	 * @throws URISyntaxException
+	 * @throws StorageException
+	 * @Author Yu Jinshui
+	 * @createTime 2016年5月21日 下午5:50:54
+	 *             {@link com.microsoft.azure.storage.table.QueryComparisons}
+	 */
+	public <T> Iterable<T> findEntitiesByFilter(String tableName, String partitionKey,
+			Class<? extends TableServiceEntity> clazz, String pFilter, String rFilter, String filterContent)
+			throws URISyntaxException, StorageException {
+		CloudTable table = tableClient.getTableReference(tableName);
+		if (pFilter == null || "".equals(pFilter)) {
+			pFilter = QueryComparisons.EQUAL;
+		}
+		if (rFilter == null || "".equals(rFilter)) {
+			rFilter = QueryComparisons.EQUAL;
+		}
+		// Create a filter condition where the partition key is
+		// partitionKey.
+		String partitionFilter = TableQuery.generateFilterCondition(PARTITION_KEY, pFilter, partitionKey);
+		// Create a filter condition where the row key is less than the letter
+		// "E".
+		String rowFilter = TableQuery.generateFilterCondition(ROW_KEY, rFilter, filterContent);
+		// Combine the two conditions into a filter expression.
+		String combinedFilter = TableQuery.combineFilters(partitionFilter, Operators.AND, rowFilter);
+
+		TableQuery<? extends TableServiceEntity> rangeQuery = TableQuery.from(clazz).where(combinedFilter);
+
+		return (Iterable<T>) table.execute(rangeQuery);
+	}
+
 	// TODO 检索单个实体
 	// TODO 修改实体
 	// TODO 查询实体属性子集

@@ -13,15 +13,14 @@ import com.microsoft.azure.storage.table.TableServiceEntity;
  */
 public class CustomerEntity extends TableServiceEntity {
 	/**
-	 * 
-	 * @param firstName
-	 *            行键
-	 * @param lastName
+	 * @param partitionKey
 	 *            分区键
+	 * @param rowKey
+	 *            行键
 	 */
-	public CustomerEntity(String firstName, String lastName) {
-		this.rowKey = firstName;// 行键
-		this.partitionKey = lastName;// 分区键
+	public CustomerEntity(String partitionKey, String rowKey) {
+		this.partitionKey = partitionKey;// 分区键 - 类似于主键
+		this.rowKey = rowKey;// 行键
 	}
 
 	public CustomerEntity() {
