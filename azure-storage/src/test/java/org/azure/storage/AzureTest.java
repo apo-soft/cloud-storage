@@ -4,8 +4,8 @@ import org.azure.storage.table.AzureTable;
 
 public class AzureTest {
 
-	private void AFile() {
-		AzureFile test = new AzureFile();
+	private void AFile(String prop) {
+		AzureFile test = new AzureFile(prop);
 		// test.createDir("sampleshare", "main/test");
 		// test.uploadFile("sampleshare", "user/list", "f:/file.txt", "data");
 		// System.out.println("show file list:");
@@ -19,8 +19,8 @@ public class AzureTest {
 		System.out.println("AFile is over.");
 	}
 
-	private void ABlob() {
-		AzureBlob test = new AzureBlob();
+	private void ABlob(String prop) {
+		AzureBlob test = new AzureBlob(prop);
 		// test.createContainer("blobcontainer");
 		// test.uploadBlob("blobcontainer/music", "F:/龙梅子 - 泪满天.mp3",
 		// test.uploadBlob("blobcontainer/music", "F:/1.jpg", "test.jpg");
@@ -31,8 +31,8 @@ public class AzureTest {
 		// test.deleteContainerBlob("blobcontainer/music", "test.jpg");
 	}
 
-	private void AQueue() {
-		AzureQueue test = new AzureQueue();
+	private void AQueue(String prop) {
+		AzureQueue test = new AzureQueue(prop);
 		String queueName = "queuetest";
 		// test.createQueue(queueName);
 		// test.addMessage(queueName, "Queue test 2");
@@ -42,8 +42,8 @@ public class AzureTest {
 		test.deleteMessage(queueName);
 	}
 
-	private void ATable() {
-		AzureTable table = new AzureTable();
+	private void ATable(String prop) {
+		AzureTable table = new AzureTable(prop);
 		// table.createTable("people");//table创建不能有下划线
 		table.tableList();
 		// table.addListEntities("people");
@@ -52,10 +52,11 @@ public class AzureTest {
 	}
 
 	public static void main(String[] args) {
+		String prop = "/Users/yujinshui/environments/prop/azure/azure.properties";
 		AzureTest a = new AzureTest();
-		a.ATable();
-		// a.AFile();
-		// a.ABlob();
-		// a.AQueue();
+		// a.ATable(prop);
+		// a.AFile(prop);
+		a.ABlob(prop);
+		// a.AQueue(prop);
 	}
 }

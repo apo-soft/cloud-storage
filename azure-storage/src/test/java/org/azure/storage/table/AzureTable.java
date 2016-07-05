@@ -12,9 +12,13 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.TableServiceEntity;
 
 public class AzureTable {
-	AzureConfig config = new AzurePropertiesConfig("E:\\environments\\properties\\store\\azure_store\\azure.properties",
-			"utf-8");
-	AzureCloudTable acTable = new AzureCloudTable(config);
+	AzureConfig config = null;
+	AzureCloudTable acTable = null;
+
+	public AzureTable(String prop) {
+		config = new AzurePropertiesConfig(prop, "utf-8");
+		acTable = new AzureCloudTable(config);
+	}
 
 	public void tableList() {
 		List<String> tablelist = acTable.tableList();

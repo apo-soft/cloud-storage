@@ -13,9 +13,13 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.file.CloudFileShare;
 
 public class AzureFile {
-	AzureConfig config = new AzurePropertiesConfig("E:\\environments\\properties\\store\\azure_store\\azure.properties",
-			"utf-8");
-	AzureCloudFile acfile = new AzureCloudFile(config);
+	AzureConfig config = null;
+	AzureCloudFile acfile = null;
+
+	public AzureFile(String prop) {
+		config = new AzurePropertiesConfig(prop, "utf-8");
+		acfile = new AzureCloudFile(config);
+	}
 
 	public void createPublicPermission() {
 		try {
@@ -49,7 +53,8 @@ public class AzureFile {
 			e1.printStackTrace();
 		}
 		try {
-			// String content = acfile.downloadFile(share, dirName,http://60portalvhdsc21y82cjz14w.file.core.chinacloudapi.cn/sampleshare/3e9d780c-c6b3-41a6-8f71-578d708d5478.jpg
+			// String content = acfile.downloadFile(share,
+			// dirName,http://60portalvhdsc21y82cjz14w.file.core.chinacloudapi.cn/sampleshare/3e9d780c-c6b3-41a6-8f71-578d708d5478.jpg
 			// fileName).downloadText();//以云平台默认编码格式访问
 			// String content = acfile.downloadFile(share, dirName,
 			// fileName).downloadText(charset, null, null, null);// 自定义访问编码
@@ -61,7 +66,7 @@ public class AzureFile {
 		}
 	}
 
-	public void download(String filePath,String shareName, String dirName, String fileName, String charset) {
+	public void download(String filePath, String shareName, String dirName, String fileName, String charset) {
 		CloudFileShare share = null;
 		try {
 			share = acfile.getShare(shareName);
@@ -80,6 +85,7 @@ public class AzureFile {
 			e.printStackTrace();
 		}
 	}
+
 	public void deleteFile(String dirName, String fileName) {
 		CloudFileShare share = null;
 		try {

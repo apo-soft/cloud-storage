@@ -9,9 +9,13 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.queue.CloudQueueMessage;
 
 public class AzureQueue {
-	AzureConfig config = new AzurePropertiesConfig("E:\\environments\\properties\\store\\azure_store\\azure.properties",
-			"utf-8");
-	AzureCloudQueue acQueue = new AzureCloudQueue(config);
+	AzureConfig config = null;
+	AzureCloudQueue acQueue = null;
+
+	public AzureQueue(String prop) {
+		config = new AzurePropertiesConfig(prop, "utf-8");
+		acQueue = new AzureCloudQueue(config);
+	}
 
 	public void createQueue(String queueName) {
 		try {
