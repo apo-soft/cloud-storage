@@ -1,8 +1,20 @@
 package org.azure.storage;
 
 import org.azure.storage.table.AzureTable;
+import org.junit.Test;
 
 public class AzureTest {
+	static String prop = "/Users/yujinshui/environments/prop/azure/azure.properties";
+
+	@Test
+	public void testAFile() {
+		this.AFile(prop);
+	}
+
+	@Test
+	public void ABlobTest() {
+		this.ABlob(prop);
+	}
 
 	private void AFile(String prop) {
 		AzureFile test = new AzureFile(prop);
@@ -13,7 +25,7 @@ public class AzureTest {
 		test.azureItemList();
 		// test.deleteDir("sampleshare", "user");
 		// System.out.println("show file content:");
-		test.download("/user", "sampleshare", "user", "file.txt", "utf-8");
+		// test.download("/user", "sampleshare", "user", "file.txt", "utf-8");
 		// test.deleteFile("", "");
 		// test.createPublicPermission("sampleshare");
 		System.out.println("AFile is over.");
@@ -52,7 +64,7 @@ public class AzureTest {
 	}
 
 	public static void main(String[] args) {
-		String prop = "/Users/yujinshui/environments/prop/azure/azure.properties";
+
 		AzureTest a = new AzureTest();
 		// a.ATable(prop);
 		// a.AFile(prop);
